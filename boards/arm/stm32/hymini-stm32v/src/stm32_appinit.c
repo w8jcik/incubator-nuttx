@@ -45,6 +45,7 @@
 #include <errno.h>
 
 #include <nuttx/board.h>
+#include <nuttx/lcd/lcd_dev.h>  // lcddev_register
 
 #ifdef CONFIG_STM32_SPI1
 #  include <nuttx/spi/spi.h>
@@ -230,6 +231,24 @@ int board_app_initialize(uintptr_t arg)
     {
       syslog(LOG_ERR, "ERROR: stm32_tsc_setup failed: %d\n", ret);
     }
+#endif
+
+#if defined(CONFIG_LCD_SSD1289) || defined(CONFIG_LCD_R61505U)
+  ret = board_lcd_initialize();
+  if (ret < 0)
+    {
+      gerr("ERROR: board_lcd_initialize failed: %d\n", ret);
+      return ERROR;
+    }
+
+#  ifdef CONFIG_LCD_DEV
+  ret = lcddev_register(0);
+  if (ret < 0)
+    {
+      gerr("ERROR: board_lcd_initialize failed: %d\n", ret);
+      return ERROR;
+    }
+#  endif
 #endif
 
   UNUSED(ret);
